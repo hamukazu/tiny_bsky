@@ -58,7 +58,7 @@ class Client(object):
         )
         return r.json()
 
-    def getMentions(self, after_time=None):
+    def getMentions(self, since=None):
         accessjwt = self._session["accessJwt"]
         params = {"limit": FETCH_LIMIT}
         mentions = []
@@ -72,7 +72,7 @@ class Client(object):
             done = False
             for x in rjson["notifications"]:
                 record = x["record"]
-                if after_time is not None and record["createdAt"] <= after_time:
+                if since is not None and record["createdAt"] <= since:
                     done = True
                     break
                 if x["reason"] == "mention":
