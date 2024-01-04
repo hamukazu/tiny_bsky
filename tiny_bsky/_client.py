@@ -1,7 +1,10 @@
 import requests
 import configparser
 from datetime import datetime, timezone
+import time
 import json
+
+FETCH_LIMIT = 100
 
 
 class ClientError(Exception):
@@ -47,3 +50,28 @@ class Client(object):
             },
         )
         return r.json()
+
+    def getMentions(self, after_time=None):
+        accessjwt = self._session["accessJwt"]
+        params = {"limit": FETCH_LIMIT}
+        mentions = []
+        while True:
+            r = requests.get(
+                "https://bsky.social/xrpc/app.bsky.notification.listNotifications",
+                headers={"Authorization": "Bearer " + accessjwt},
+                params=params,
+            )
+            rjson = r.json()
+            done = False
+            for x in rjson["notifications"]:
+                record = x["record"]
+                if after_time is not None and record["createdAt"] <= after_time:
+                    done = True
+                    break
+                if x["reason"] == "mention":
+                    mentions.append(x)
+            time.sleep(1)
+            if done or "cursor" not in rjson:
+                break
+            params = {"limit": FETCH_LIMIT, "cursor": rjson["cursor"]}
+        return mentions
