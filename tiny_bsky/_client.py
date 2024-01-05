@@ -75,7 +75,7 @@ class Client(object):
                 if since is not None and record["createdAt"] <= since:
                     done = True
                     break
-                if x["reason"] == ["mention", "reply"]:
+                if x["reason"] in ["mention", "reply"]:
                     mentions.append(x)
             time.sleep(1)
             if done or "cursor" not in rjson:
