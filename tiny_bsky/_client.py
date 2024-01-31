@@ -30,13 +30,14 @@ class Client(object):
             raise ClientError(r.json())
         self._session = r.json()
 
-    def post(self, text, uri=None, cid=None):
+    def post(self, post, uri=None, cid=None):
         now = datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
-        post = {
-            "$type": "app.bsky.feed.post",
-            "text": text,
-            "createdAt": now,
-        }
+        if type(post) is str:
+            post = {
+                "$type": "app.bsky.feed.post",
+                "text": post,
+                "createdAt": now,
+            }
         if uri is not None:
             d = dict(uri=uri, cid=cid)
             post["reply"] = {
